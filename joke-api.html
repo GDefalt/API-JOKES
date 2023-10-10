@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piadas Engraçadas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        .joke-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .joke-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+
+        ul{
+            list-style: none;
+        }
+
+        #likedJokes{
+            max-width: 850px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Piadas Engraçadas</h1>
+
+    <div class="joke-container">
+        <div class="joke-text" id="joke-text"></div>
+        <button class="btn btn-primary" id="get-joke">Obter Piada</button>
+        <button class="btn btn-secondary" id="next-joke">Próxima Piada</button>
+        <button class="btn btn-success" id="like-joke">Curtir</button>
+    </div>
+
+    <div id="likedJokes">
+        <h2>Piadas Curtidas</h2>
+        <ul id="likedJokesList"></ul>
+    </div>
+    
+    <script>
+        const jokeTextElement = document.getElementById('joke-text');
+        const getJokeButton = document.getElementById('get-joke');
+        const nextJokeButton = document.getElementById('next-joke');
+        const likeJokeButton = document.getElementById('like-joke');
+        let likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
+
+        function getJoke() {
+            fetch('https://v2.jokeapi.dev/joke/Any')
+                .then(response => response.json())
+                .then(data => {
+                    jokeTextElement.textContent = data.joke || (data.setup + ' ' + data.delivery);
+                    nextJokeButton.disabled = false;
+                    likeJokeButton.disabled = false; // Habilita o botão de curtir ao obter uma nova piada.
+
+                })
+                .catch(error => console.error('Erro ao obter piada:', error));
+        }
+        
+
+
+        function nextJoke() {
+            getJokeButton.click();
+            likeJokeButton.disabled = false; // Habilita o botão de curtir ao avançar para a próxima piada.
+
+        }
+
+        function likeJoke() {
+    const joke = jokeTextElement.textContent.trim();
+    if (!likedJokes.includes(joke)) {
+        likedJokes.push(joke);
+        localStorage.setItem('likedJokes', JSON.stringify(likedJokes));
+        likeJokeButton.disabled = true; // Desabilita o botão de curtir após clicar.
+        updateLikedJokesList();
+    }
+}
+
+
+        function updateLikedJokesList() {
+            const likedJokesList = document.getElementById('likedJokesList');
+            likedJokesList.innerHTML = '';
+
+            const likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
+
+            likedJokes.forEach((joke, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = joke;
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remover';
+                removeButton.addEventListener('click', () => removeLikedJoke(index));
+                listItem.appendChild(removeButton);
+                likedJokesList.appendChild(listItem);
+            });
+        }
+
+        function removeLikedJoke(index) {
+    const likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
+    likedJokes.splice(index, 1);
+    localStorage.setItem('likedJokes', JSON.stringify(likedJokes));
+    likeJokeButton.disabled = false; // Habilita o botão de curtir após remover uma piada.
+    updateLikedJokesList();
+}
+
+
+        getJokeButton.addEventListener('click', getJoke);
+        nextJokeButton.addEventListener('click', nextJoke);
+        likeJokeButton.addEventListener('click', likeJoke);
+
+        updateLikedJokesList(); // Atualiza a lista de piadas curtidas ao carregar a página.
+
+    </script>
+</body>
+</html>
