@@ -95,12 +95,22 @@
 
         function likeJoke() {
     const joke = jokeTextElement.textContent.trim();
-    if (!likedJokes.includes(joke)) {
+    const removedJokes = JSON.parse(localStorage.getItem('removedJokes')) || [];
+    let likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
+
+    if (joke && !likedJokes.includes(joke) && !removedJokes.includes(`[REMOVIDA] ${joke}`)) {
         likedJokes.push(joke);
         localStorage.setItem('likedJokes', JSON.stringify(likedJokes));
-        likeJokeButton.disabled = true; // Desabilita o botão de curtir após clicar.
         updateLikedJokesList();
     }
+}
+
+function removeLikedJoke(index) {
+    let likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
+    likedJokes.splice(index, 1);
+    localStorage.setItem('likedJokes', JSON.stringify(likedJokes));
+    likeJokeButton.disabled = false; 
+    updateLikedJokesList();
 }
 
 
@@ -121,13 +131,7 @@
             });
         }
 
-        function removeLikedJoke(index) {
-    const likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
-    likedJokes.splice(index, 1);
-    localStorage.setItem('likedJokes', JSON.stringify(likedJokes));
-    likeJokeButton.disabled = false; // Habilita o botão de curtir após remover uma piada.
-    updateLikedJokesList();
-}
+
 
 
         getJokeButton.addEventListener('click', getJoke);
