@@ -73,6 +73,9 @@
         const likeJokeButton = document.getElementById('like-joke');
         let likedJokes = JSON.parse(localStorage.getItem('likedJokes')) || [];
 
+        nextJokeButton.disabled = true; 
+
+
         function getJoke() {
             fetch('https://v2.jokeapi.dev/joke/Any')
                 .then(response => response.json())
@@ -80,6 +83,9 @@
                     jokeTextElement.textContent = data.joke || (data.setup + ' ' + data.delivery);
                     nextJokeButton.disabled = false;
                     likeJokeButton.disabled = false; // Habilita o botão de curtir ao obter uma nova piada.
+                    getJokeButton.disabled = true; 
+                    nextJokeButton.disabled = false; 
+
 
                 })
                 .catch(error => console.error('Erro ao obter piada:', error));
@@ -88,8 +94,13 @@
 
 
         function nextJoke() {
-            getJokeButton.click();
-            likeJokeButton.disabled = false; // Habilita o botão de curtir ao avançar para a próxima piada.
+            // getJokeButton.click();
+            likeJokeButton.disabled = false;
+            fetch('https://v2.jokeapi.dev/joke/Any')
+                .then(response => response.json())
+                .then(data => {
+                    jokeTextElement.textContent = data.joke || (data.setup + ' ' + data.delivery);
+                })
 
         }
 
